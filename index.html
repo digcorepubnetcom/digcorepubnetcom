@@ -3,8 +3,205 @@
 	<head>
 		<meta charset="utf-8">
 		<title>DigCore公网通</title>
+		<meta name="description" content="PubNetCom公网通 v2.0 公网IP基于TCP连接调试">
+		<link rel="shortcut icon" type="image/x-icon" href="https://digcore.gitee.io/media/favicon.ico">
+
+		<link rel="stylesheet" href="./css/font-awesome-4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="./css/element-index.css">
+		<script src="./js/vue.min.js"></script>
+		<script src="./js/element-index.js"></script>
+
+		<style>
+			.el-aside {
+				background-color: #D3DCE6;
+				color: #333;
+			}
+			
+			.el-main {
+				background-color: #E9EEF3;
+				color: #333;
+			}
+			
+			.el-select{
+				width: 100px;
+			}
+			
+			[v-cloak]{
+			  display: none;
+			}
+		</style>
 	</head>
-	<body>
-		<h1>https://pubnetcom.digcore.cn</h1>
+	<body style="background-color: rgb(160, 207, 255);">
+		<div id="app" v-cloak>
+			<el-container>
+				<el-main style="width: 600px;">
+					<div style="font-size: 36px; text-align: left;">
+						<i class="fa fa-globe fa-3x" aria-hidden="true" id="PubNetCom-logo"></i>公网通<a style="font-size: 24px;">PubNetCom</a>
+					</div>
+					<div>
+						<br id="record_br">
+						<div id="record" style="display: none;">
+							<span id="busuanzi_value_site_pv"></span> -
+							<span id="busuanzi_value_site_uv"></span> -
+							<span id="busuanzi_value_page_pv"></span> -
+							{{server_sta.TCPServer}} - {{server_sta.TCPClient}}
+						</div>
+					</div>
+
+					<div style="font-size: 18px; color: #333333; text-align: left;">
+						在线调试公网IP基于TCP连接通信的调试工具
+					</div>
+					<div style="font-size: 18px; color: #409EFF; text-align: left;">
+
+						<el-button size="medium" type="success" round><a id="dialog_ctrl"><i class="fa fa-arrow-right fa-1x" aria-hidden="true"></i>点击关注公众号【DigCore】</a>
+							</button>
+							<el-dialog title="扫码关注公众号【DigCore】" :visible.sync="dialog_ctrl" width=30% center>
+								<div style="color: darkred; font-size: 12px; text-align: center;">
+									<el-image :src="url_qrcode"></el-image>
+								</div>
+							</el-dialog>
+					</div>
+				</el-main>
+				<el-container>
+					<el-main>
+						<div style="font-size: 20px; color: #DC1024; text-align: left;">
+							<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>声明：
+						</div>
+						<div style="color: darkred; font-size: 12px; text-align: left;">
+							<i class="fa fa-angle-double-right" aria-hidden="true"></i>1.同个电脑限制页面数量 <a style="color: red;">8</a>
+							个；同个监听端口限制TCP客户端 <a style="color: red;">10</a> 个!
+							<br><i class="fa fa-angle-double-right" aria-hidden="true"></i>2.TCP服务器 等待连接 的最大时间 <a style="color: red;">3 分钟</a>；TCP服务器
+							空闲状态 的最大时间 <a style="color: red;">5 分钟</a>！
+							<br><i class="fa fa-angle-double-right" aria-hidden="true"></i>3.本页关于稳定可靠、安全连接、加密传输、准确通信<a style="color: red;">不做保证！</a>
+							<br><i class="fa fa-angle-double-right" aria-hidden="true"></i>4.使用前请悉知以上声明内容，您的使用即表明已完全了解，即<a style="color: red;">表明您愿意自行承担一切后果！</a>
+						</div>
+						<br><br>
+						<div style="font-size: 18px; color: #409EFF; text-align: left;">
+							<a href="https://www.digcore.cn" target="_blank"><i class="fa fa-file-text" aria-hidden="true"></i>公网通-调试工具使用说明</a>
+						</div>
+					</el-main>
+				</el-container>
+			</el-container>
+
+			<br>
+
+			<el-container>
+				<el-aside width="210px">
+					<div align="center">
+						<br>
+						<div style="font: bolder; font-size: 20px;">
+							服务器地址:端口
+						</div>
+						<div style="height: 20px;">
+							<div id="reload_btn" style="display: none;">
+								<el-button type="info" size="mini">已关闭，请刷新页面</button>
+							</div>
+
+							<span id="server_addr"></span>
+						</div>
+						<br>
+						<div>
+							<el-checkbox size="mini" v-model="msg_enter">消息换行</el-checkbox>
+						</div>
+						<div>
+							<el-checkbox size="small" v-model="time_sta">显示时间</el-checkbox>
+						</div>
+						<div>
+							<el-checkbox size="mini" v-model="dev_info">设备信息</el-checkbox>
+						</div>
+						<div>
+							<el-checkbox size="mini" v-model="show_hex" disabled>十六进制</el-checkbox>
+						</div>
+						<br><br>
+						<el-button type="primary" size="mini" @click="btn_clear_recv">清空接收</el-button>
+						<el-button type="success" size="mini" disabled>保存接收</el-button>
+						<br><br>
+					</div>
+				</el-aside>
+
+				<el-main>
+					<div>
+						<el-input type="textarea" id="main_board" :rows="12" resize="none" placeholder="接收显示窗口" readonly v-model="recv_textarea"
+						 style="font-size: 9px;"></el-input>
+					</div>
+				</el-main>
+			</el-container>
+			<br>
+
+			<el-container>
+				<el-aside width="210px" align="center">
+					<div>
+						<br>
+						<div>
+							<el-select v-model="opt_value" size="mini">
+								<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" :disabled="item.disabled">
+								</el-option>
+							</el-select>
+						</div>
+						<br>
+						<div>
+							<el-checkbox size="mini" v-model="send_echo">发送回显</el-checkbox>
+						</div>
+						<div>
+							<el-checkbox size="mini" v-model="auto_enter">自动换行</el-checkbox>
+						</div>
+						<div>
+							<el-checkbox size="mini" v-model="period" disabled>定时发送</el-checkbox>
+							<el-input size="mini" suffix-icon="el-icon-time" v-model="period_time" :min="5" :max="5*1000" style="width: 75px;"
+							 disabled>
+							</el-input><a style="font-size: 9px;">ms/次</a>
+
+						</div>
+						<br>
+					</div>
+					<div align="center">
+						<el-button type="primary" size="mini" @click="btn_clear_send">清空发送</el-button>
+						<el-button type="success" size="mini" @click="btn_send_msg">点击发送</el-button>
+						<br><br>
+					</div>
+				</el-aside>
+				<el-main>
+					<div>
+						<el-input type="textarea" id="send_board" :rows="9" resize="none" placeholder="请输入发送内容" v-model="send_textarea"
+						 style="font-size: 9px;">
+						</el-input>
+					</div>
+
+				</el-main>
+			</el-container>
+			<br>
+
+			<div align="center">
+				<div id="client_table" style="background-color: #00FF00; width: 600px; display: none;">
+					<el-container>
+						<el-main>
+							TCP客户端列表({{tableData.length}}/10)
+							<br><br>
+							<el-table :data="tableData">
+								<el-table-column type="selection">
+								</el-table-column>
+								<el-table-column prop="time" label="时间" align="center">
+								</el-table-column>
+								<el-table-column prop="client" label="客户端" align="center">
+								</el-table-column>
+								<el-table-column prop="operate" label="操作" align="center">
+									<template slot-scope="scope">
+										<el-button size="mini" type="danger" @click="client_mng_handle(scope.$index, scope.row)">删除</el-button>
+									</template>
+								</el-table-column>
+							</el-table>
+						</el-main>
+					</el-container>
+				</div>
+			</div>
+
+			<div align="center">
+				技术支持： <a href="https://www.digcore.cn" target="_blank">DigCore《帝核》</a>
+			</div>
+
+		</div>
+		<script src="./js/index.min.js"></script>
+		<script async src="./js/busuanzi.pure.mini.js"></script>
+
 	</body>
 </html>

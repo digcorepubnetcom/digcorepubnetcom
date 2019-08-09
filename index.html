@@ -10,7 +10,7 @@
 		<link rel="stylesheet" href="./css/element-index.css">
 		<script src="./js/vue.min.js"></script>
 		<script src="./js/element-index.js"></script>
-
+		
 		<style>
 			.el-aside {
 				background-color: #D3DCE6;
@@ -97,7 +97,7 @@
 								<el-button type="info" size="mini">已关闭，请刷新页面</button>
 							</div>
 
-							<span id="server_addr"></span>
+							<strong><span id="server_addr" style="color: midnightblue; font-size: large; fon"></span></strong>
 						</div>
 						<br>
 						<div>
@@ -114,7 +114,7 @@
 						</div>
 						<br><br>
 						<el-button type="primary" size="mini" @click="btn_clear_recv">清空接收</el-button>
-						<el-button type="success" size="mini" disabled>保存接收</el-button>
+						<el-button type="success" size="mini" @click="btn_save_recv">保存接收</el-button>
 						<br><br>
 					</div>
 				</el-aside>
@@ -200,8 +200,9 @@
 			</div>
 
 		</div>
+		<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
 		<script src="./js/index.min.js"></script>
-		<script async src="./js/busuanzi.pure.mini.js"></script>
+		<!-- <script async src="./js/busuanzi.pure.mini.js"></script> -->
 
 	</body>
 </html>
